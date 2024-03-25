@@ -1,6 +1,6 @@
 from filterpy.kalman import UnscentedKalmanFilter as UKF, MerweScaledSigmaPoints
 from state import StateVector, MeasurementVector, StateComponent, StateVectorUtilities, MeasurementVectorUtilities
-from ballconstants import BallConstants
+from src.pingpong.ball import BallConstants
 import numpy as np
 from functools import partial
 

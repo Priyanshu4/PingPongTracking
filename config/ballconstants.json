@@ -1,8 +1,0 @@
-{
-    "gravity": 9.81,
-    "radius": 0.02,
-    "mass": 0.0027,
-    "coefficient_of_drag": 0.47,
-    "coefficient_of_lift": 1.23,
-    "air_density": 1.205
-}

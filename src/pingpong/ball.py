@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from math import pi
 from pathlib import Path
-import json
+import yaml
 
 @dataclass
 class BallConstants:
@@ -39,6 +39,8 @@ class BallConstants:
         return self._magnus_factor
 
     @staticmethod
-    def load_from_json(json_file: Path) -> 'BallConstants':
-        return BallConstants(**json.load(json_file.open()))
+    def load_from_yaml(yaml_file: Path) -> 'BallConstants':
+        with open(yaml_file, 'r') as file:
+            data = yaml.safe_load(file)
+            return BallConstants(**data["ball"])
     
