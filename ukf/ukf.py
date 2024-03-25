@@ -1,4 +1,4 @@
-from filterpy.kalman import UnscentedKalmanFilter as UKF
+from filterpy.kalman import UnscentedKalmanFilter as UKF, MerweScaledSigmaPoints
 from state import StateVector, MeasurementVector, StateComponent, StateVectorUtilities, MeasurementVectorUtilities
 from ballconstants import BallConstants
 import numpy as np
@@ -7,6 +7,14 @@ from functools import partial
 def fx(x: StateVector, dt: float, ball_constants: BallConstants) -> StateVector:
     """ State transition function for the ball. 
         Adapted from https://ieeexplore.ieee.org/abstract/document/6917514
+
+        Arguments:
+            x (StateVector): The state vector.
+            dt (float): The time step.
+            ball_constants (BallConstants): The constants of the ball.
+
+        Returns:
+            x_new (StateVector): The new state vector.
     """
 
     # Transition matrix that does not include external forces
@@ -48,21 +56,33 @@ def fx(x: StateVector, dt: float, ball_constants: BallConstants) -> StateVector:
 def hx(x: StateVector) -> MeasurementVector:
     """ Measurement function for UKF.
         Defines the measurement in terms of the state.
+
+        Arguments:
+            x (StateVector): The state vector.
+        
+        Returns:
+            z (MeasurementVector): The measurement vector.
     """
     return x[StateComponent.X:StateComponent.R_Z+1]
 
-def init_UKF(ball_constants: BallConstants) -> UKF:
+def init_UKF(ball_constants: BallConstants, dt: float, initial_state: StateVector, initial_state_covariance, measurement_noise, process_noise) -> UKF:
     """ Initializes the Unscented Kalman Filter with the state transition and measurement functions.
     """
-    points = None
+    sigma_points = MerweScaledSigmaPoints(n=12, alpha=0.1, beta=2.0, kappa=0.0, subtract=StateVectorUtilities.residual)
     ukf = UKF(dim_x=12, 
               dim_z=6, 
               fx=partial(fx, ball_constants=ball_constants), 
               hx=hx, 
-              dt=0.01, 
-              points=points, 
+              dt=dt, 
+              points=sigma_points,
               x_mean_fn=StateVectorUtilities.mean, 
               z_mean_fn=MeasurementVectorUtilities.mean, 
               residual_x=StateVectorUtilities.residual, 
               residual_z=MeasurementVectorUtilities.residual)
-    pass
+    
+    ukf.x = initial_state               # Initialize the state
+    ukf.P = initial_state_covariance    # Initialize the state covariance matrix
+    ukf.R = measurement_noise           # Initialize the measurement noise covariance matrix
+    ukf.Q = process_noise               # Initialize the process noise covariance matrix
+
+    return ukf

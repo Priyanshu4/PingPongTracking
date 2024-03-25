@@ -94,9 +94,9 @@ class StateVectorUtilities:
           
     @staticmethod
     def residual(a: StateVector, b: StateVector) -> StateVector:
-        """ Computes the absolute difference between two state vectors a and b.
+        """ Computes the difference between two state vectors a and b.
             This function ensures that the angular states are wrapped to the range [-pi, pi].
-            It differs from subtraction (since 359 deg - 1 deg = 2 deg).
+            It differs from normal subtraction (since 359 deg - 1 deg = 2 deg).
             A residual function is required for the Unscented Kalman Filter.
 
         Args:
@@ -163,9 +163,9 @@ class MeasurementVectorUtilities:
         
     @staticmethod
     def residual(a: MeasurementVector, b: MeasurementVector) -> MeasurementVector:
-        """ Computes the absolute difference between two measurement vectors a and b.
+        """ Computes the difference between two measurement vectors a and b.
             This function ensures that the angular states are wrapped to the range [-pi, pi].
-            It differs from subtraction (since 359 deg - 1 deg = 2 deg).
+            It differs from normal subtraction (since 359 deg - 1 deg = 2 deg).
             A residual function is required for the Unscented Kalman Filter.
 
         Args:
