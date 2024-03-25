@@ -42,4 +42,3 @@ class BallConstants:
     def load_from_json(json_file: Path) -> 'BallConstants':
         return BallConstants(**json.load(json_file.open()))
     
-DefaultConstants = BallConstants()

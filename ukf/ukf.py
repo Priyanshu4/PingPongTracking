@@ -1,9 +1,10 @@
 from filterpy.kalman import UnscentedKalmanFilter as UKF
-from state import StateVector, MeasurementVector, StateComponent, wrap_angles, residual
-from ballconstants import BallConstants, DefaultConstants
+from state import StateVector, MeasurementVector, StateComponent, StateVectorUtilities, MeasurementVectorUtilities
+from ballconstants import BallConstants
 import numpy as np
+from functools import partial
 
-def fx(x: StateVector, dt: float, ball_constants: BallConstants = DefaultConstants) -> StateVector:
+def fx(x: StateVector, dt: float, ball_constants: BallConstants) -> StateVector:
     """ State transition function for the ball. 
         Adapted from https://ieeexplore.ieee.org/abstract/document/6917514
     """
@@ -40,7 +41,7 @@ def fx(x: StateVector, dt: float, ball_constants: BallConstants = DefaultConstan
     gravity = np.array([0, 0, -g])
 
     x_new[StateComponent.V_X:StateComponent.V_Z+1] += (drag + magnus + gravity) * dt
-    x_new = wrap_angles(x_new)
+    x_new = StateVectorUtilities.wrap_angles(x_new)
     return x_new
 
   
@@ -49,3 +50,19 @@ def hx(x: StateVector) -> MeasurementVector:
         Defines the measurement in terms of the state.
     """
     return x[StateComponent.X:StateComponent.R_Z+1]
+
+def init_UKF(ball_constants: BallConstants) -> UKF:
+    """ Initializes the Unscented Kalman Filter with the state transition and measurement functions.
+    """
+    points = None
+    ukf = UKF(dim_x=12, 
+              dim_z=6, 
+              fx=partial(fx, ball_constants=ball_constants), 
+              hx=hx, 
+              dt=0.01, 
+              points=points, 
+              x_mean_fn=StateVectorUtilities.mean, 
+              z_mean_fn=MeasurementVectorUtilities.mean, 
+              residual_x=StateVectorUtilities.residual, 
+              residual_z=MeasurementVectorUtilities.residual)
+    pass
