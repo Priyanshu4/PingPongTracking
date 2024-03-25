@@ -11,7 +11,7 @@ class BallConstants:
     radius: float = 20 * 10**-3         # m
     mass: float = 0.0027                # kg
     coefficient_of_drag: float = 0.47   # unitless
-    coeffiecient_of_lift: float = 1.23  # unitless
+    coefficient_of_lift: float = 1.23   # unitless
     air_density: float = 1.205          # kg/m^3
 
     # These values are calculated from the above constants
@@ -24,7 +24,7 @@ class BallConstants:
         self._diameter = 2 * self.radius
         self._cross_sectional_area = pi * self.radius**2
         self._air_drag_factor = -0.5 * self.air_density * self.coefficient_of_drag * self._cross_sectional_area / self.mass
-        self._magnus_factor = self.coeffiecient_of_lift * self._diameter**3 * self.air_density / (2 * pi * self.mass)
+        self._magnus_factor = self.coefficient_of_lift * self._diameter**3 * self.air_density / (2 * pi * self.mass)
 
     @property
     def diameter(self):
