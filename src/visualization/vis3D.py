@@ -33,6 +33,3 @@ def plot_table(table: TableConstants, ax: Axes3D):
 
     net_poly = Poly3DCollection([net_corners], facecolors='grey', edgecolors='black', alpha=1)
     ax.add_collection3d(net_poly)
-
-    print(corners)
-    print(net_corners)

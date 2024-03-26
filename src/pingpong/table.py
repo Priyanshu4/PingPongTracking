@@ -14,6 +14,6 @@ class TableConstants:
     def load_from_yaml(yaml_file: Path) -> 'TableConstants':
         with open(yaml_file, 'r') as file:
             data = yaml.safe_load(file)
-            return TableConstants(**data["ball"])
+            return TableConstants(**data["table"])
 
     
