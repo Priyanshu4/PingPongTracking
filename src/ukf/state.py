@@ -1,11 +1,11 @@
 import numpy as np
+import numpy.typing
 from typing import Annotated, Literal, TypeAlias
-from enum import IntEnum
 
 StateVector: TypeAlias = Annotated[np.typing.NDArray[np.float64], Literal[12]]
 MeasurementVector: TypeAlias = Annotated[np.typing.NDArray[np.float64], Literal[6]]
 
-class StateComponent(IntEnum):
+class StateComponent:
     # Position
     X = 0
     Y = 1
