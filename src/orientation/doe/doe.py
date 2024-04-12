@@ -18,7 +18,7 @@ from .utils import read_pattern
 import argparse
 
 import src.fileutils as fileutils
-from fileutils import PROJECT_ROOT
+from src.fileutils import PROJECT_ROOT
     
 class DOE:
     def __init__(self, dot_detector_model_path: Path, use_gpu=False) -> None:
@@ -195,13 +195,6 @@ class DOE:
         rot, heatmap, mask, keypoints = self.estimate_single(img)
         heatmap = np.uint8(255 * heatmap)
         heatmap = cv2.cvtColor(heatmap, cv2.COLOR_GRAY2RGB)
-        # img = cv2.drawKeypoints(
-        #     img,
-        #     keypoints,
-        #     0,
-        #     (0, 0, 255),
-        #     flags=cv2.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS,
-        # )
         heatmap = cv2.drawKeypoints(
             heatmap,
             keypoints,
@@ -210,7 +203,7 @@ class DOE:
             flags=cv2.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS,
         )
         if rot is not None:
-            aug_img = doe.reproject_dots(rot, img)
+            aug_img = self.reproject_dots(rot, img)
         else:
             aug_img = img
         return rot, aug_img, heatmap
