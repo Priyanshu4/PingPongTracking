@@ -18,7 +18,7 @@ class OrientationEstimation:
     """
 
     def __init__(self, dot_detector_model_path: Path, use_gpu=False, 
-                 doe_expected_brightness: Optional[float] = 100) -> None:
+                 doe_expected_brightness: Optional[float] = 55) -> None:
         """ Initializes the OrientationEstimation object.
             Args:
                 dot_detector_model_path (Path): Path to the trained PyTorch model for dot detection.

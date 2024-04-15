@@ -168,6 +168,10 @@ class DOE:
     def reproject_dots(self, rot, img, color=None):
         points_rotated = rot.inv().apply(self.ref_pattern)
         logo_rotated = rot.inv().apply(np.array([[0, 0, 1]]))
+
+        if img.shape[0] != self.size:
+            img = cv2.resize(img, (self.size, self.size))
+
         if color is None:
             pattern_img = self.draw_visible_3dpoints_on_image(
                 points_rotated, img, self.dot_color
