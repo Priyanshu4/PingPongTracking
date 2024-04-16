@@ -1,0 +1,8 @@
+iPhone13_SlowMotion_240fps_1x:
+  width_pixels: 1920
+  height_pixels: 1080
+  sensor_width_mm: 
+  sensor_height_mm:
+  focal_length_mm: 26
+  frames_per_second: 240
+
