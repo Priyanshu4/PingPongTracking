@@ -1,22 +1,32 @@
+from src.camera import Camera
+from src.pingpong.ball import BallConstants
+import numpy as np
+
 class PositionEstimation:
-    def __init__(self, F: float, W: float, L: float):
-        self.F = F  # focus of camera mm
-        self.W = W  # width of camera mm
-        self.L = L  # length of camera mm
-        self.d = 0.04 # diameter of ball
 
-    def calculate(self, w, l, x, y, cx, cy, d_pix):
+    def __init__(self, camera: Camera, ball: BallConstants):
+        self.camera = camera
+        self.ball = ball
+
+    def ball_position_camera_reference_frame(self, x, y, diameter_pix):
         """
-        (w,l) width and and lenght of the image
-        (x,y) x and y coordinates of the center of the ping pong ball
-        (cx,cy) center of the image 
-        d_pix pixels of diameter of ping pong ball
+        Estimates the ball's position in the camera's frame of reference.
+        Arguments:
+            x: the x pixel coordinate of the ball's center
+            y: the y pixel coordinate of the ball's center
+            diameter_pix: the diameter of the ball in pixels
+        Returns:
+            position: Ball's position in meters in camera's reference frame as np array of [x, y, z] 
         """
-        fx = self.F * self.W / w
-        fy = self.F * self.L / l
-        zreal = (fx * self.d) / d_pix
+        fx = self.camera.calibration.fx
+        fy = self.camera.calibration.fy
+        cx = self.camera.calibration.cx
+        cy = self.camera.calibration.cy
+        d = self.ball.diameter
+  
+        zreal = (fx * d) / diameter_pix
         xreal = ((x-cx) * zreal) / fx
-        yreal = ((y-cy) * zreal) / fy
+        yreal = ((cy-y) * zreal) / fy
 
-        return (xreal, yreal, zreal)
+        return np.array([xreal, yreal, zreal])
 

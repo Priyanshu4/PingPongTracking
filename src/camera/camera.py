@@ -53,8 +53,8 @@ class CameraCalibration:
     
     @classmethod
     def from_camera_specs(cls, camera_specs: CameraSpecs) -> 'CameraCalibration':
-        fx = camera_specs.focal_length_mm * camera_specs.width_pixels / camera_specs.sensor_width_mm
-        fy = camera_specs.focal_length_mm * camera_specs.height_pixels / camera_specs.sensor_height_mm
+        fx = camera_specs.focal_length_mm * camera_specs.sensor_width_mm / camera_specs.width_pixels
+        fy = camera_specs.focal_length_mm * camera_specs.sensor_height_mm / camera_specs.height_pixels
         cx = camera_specs.width_pixels / 2
         cy = camera_specs.height_pixels / 2
         return cls(intrinsic_matrix=np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]]))
