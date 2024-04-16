@@ -59,13 +59,33 @@ class CameraCalibration:
         cy = camera_specs.height_pixels / 2
         return cls(intrinsic_matrix=np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]]))
 
-@dataclass
 class Camera:
-    specs: CameraSpecs
 
-    # Position is relative to the closest center edge of the table
-    position: np.ndarray    
+    def __init__(self, position: np.ndarray, orientation: np.ndarray,
+                       calibration: Optional[CameraCalibration] = None,
+                       specs: Optional[CameraSpecs] = None, 
+                       ):
+        
+        """ Initializes a Camera object.
+            Arguments:
+                position: np array with [x, y, z] coordinates in meters relative to closest center edge of table
+                orientation: np array with [roll, pitch, yaw] in radians relative to upright landscape position facing table
+                calibration: CameraCalibration object (optional if specs are provided)
+                specs: CameraSpecs object (optional)
+        """
+        if specs is None and calibration is None:
+            raise ValueError("Both camera specs and calibration cannot be None.")
+        
+        if calibration is None:
+            self.calibration = CameraCalibration.from_camera_specs(specs)
+        else:
+            self.calibration = calibration
 
-    # Orientation is relative to the upright position where camera faces table from side.
-    orientation: np.ndarray
+        self.position = position
+        self.orientation = orientation
+        self.specs = specs
+
+
+        
+
 
