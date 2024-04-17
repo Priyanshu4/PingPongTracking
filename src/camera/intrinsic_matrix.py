@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from .camera import CameraCalibration
 
 # Define the dimensions of the chessboard (inner corners)
-def find_intrinsic_matrix(image, chessboard_size=(7,7)):
+def find_single_intrinsic_matrix(image, chessboard_size=(7,7)):
     """
     Takes opencv image and optional chessboardsize of internal corners to return the intrinsic matrix of the camera
     """
@@ -40,7 +40,16 @@ def find_intrinsic_matrix(image, chessboard_size=(7,7)):
 
         # Print the intrinsic matrix
         print("Intrinsic Matrix (Camera Matrix):\n", mtx)
-        return CameraCalibration(mtx)
+        return mtx 
     
     print("Chessboard corners not found in the image.")
     return None
+
+def find_average_intrinsic_matrix(images, chessboard_size = (7,7)):
+    matrices = list()
+    for image in images:
+        mtx = find_single_intrinsic_matrix(image,chessboard_size)
+        if mtx:
+            matrices.append(mtx)
+    matrices_np = np.array(matrices)
+    return CameraCalibration(np.mean(matrices_np))
