@@ -92,9 +92,6 @@ class CameraPose:
                 mirror_x: bool, whether to mirror the x-axis of the camera.
                 mirror_y: bool, whether to mirror the y-axis of the camera.
                     After orientation is applied, the camera will be mirrored.
-
-                calibration: CameraCalibration object (optional if specs are provided)
-                specs: CameraSpecs object (optional)
         """
         self.position = position
         self.orientation = orientation
@@ -124,6 +121,14 @@ class Camera:
     def __init__(self, pose: CameraPose, 
                        calibration: Optional[CameraCalibration] = None, 
                        specs: Optional[CameraSpecs] = None):
+        """ Initializes a Camera object.
+            Arguments:
+                pose: CameraPose object representing the camera's position and orientation.
+                calibration: CameraCalibration object representing the camera's calibration.
+                specs: CameraSpecs object representing the camera's specifications.
+            If calibration is None, it is calculated from specs.
+            If both calibration and specs are None, an error is raised.
+        """
   
         if specs is None and calibration is None:
             raise ValueError("Both camera specs and calibration cannot be None.")
