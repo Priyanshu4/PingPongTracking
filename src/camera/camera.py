@@ -63,6 +63,7 @@ class CameraCalibration:
 class Camera:
 
     def __init__(self, position: np.ndarray, orientation: Rotation,
+                       mirror_x: bool = False, mirror_y: bool = True,
                        calibration: Optional[CameraCalibration] = None,
                        specs: Optional[CameraSpecs] = None, 
                        ):
@@ -89,6 +90,10 @@ class Camera:
                              Consider that first the position transformation will be applied, then this rotation.
                              In your camera reference frame, x is left (-) and right (+), y is up (-) and down (+), and z is depth.
 
+                mirror_x: bool, whether to mirror the x-axis of the camera.
+                mirror_y: bool, whether to mirror the y-axis of the camera.
+                    After orientation is applied, the camera will be mirrored.
+
                 calibration: CameraCalibration object (optional if specs are provided)
                 specs: CameraSpecs object (optional)
         """
@@ -102,7 +107,32 @@ class Camera:
 
         self.position = position
         self.orientation = orientation
+        self.mirror_x = mirror_x
+        self.mirror_y = mirror_y
+
         self.specs = specs
+
+    def transform_to_camera_reference_frame(self, position: np.ndarray) -> np.ndarray:
+        """ Transforms a position from table reference frame to camera reference frame.
+        """
+        position = position + self.position
+        position = self.orientation.apply(position)
+        if self.mirror_x:
+            position[0] = -position[0]
+        if self.mirror_y:
+            position[1] = -position[1]
+        return position
+    
+    def transform_to_table_reference_frame(self, position: np.ndarray) -> np.ndarray:
+        """ Transforms a position from camera reference frame to table reference frame.
+        """
+        if self.mirror_x:
+            position[0] = -position[0]
+        if self.mirror_y:
+            position[1] = -position[1]
+        position = self.orientation.inv().apply(position)
+        position = position - self.position
+        return position
         
 
 

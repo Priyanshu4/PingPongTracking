@@ -16,4 +16,3 @@ class TableConstants:
             data = yaml.safe_load(file)
             return TableConstants(**data["table"])
 
-    

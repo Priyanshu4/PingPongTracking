@@ -34,14 +34,18 @@ class PositionEstimation:
 
         return np.array([x_cam, y_cam, z_cam])/1000
     
-    def _to_table_reference_frame(self, position: np.ndarray) -> np.ndarray:
-        """ Converts the ball's reference frame to the table reference frame.
-            Note that in camera's frame of reference, the z-axis is depth from the camera.
-            In the table's frame of reference, the z-axis is up and down. 
+    def ball_position_table_reference_frame(self, x, y, diameter_pix):
+        """ Estimates the ball's position in the table's frame of reference.
+        Arguments:
+            x: the x pixel coordinate of the ball's center
+            y: the y pixel coordinate of the ball's center
+            diameter_pix: the diameter of the ball in pixels
+        Returns:
+            position: Ball's position in meters in table's reference frame as np array of [x, y, z] 
         """
-        position = self.camera.orientation.inv().apply(position)
-        position = position - self.camera.position
-        return position
+        position_camera = self.ball_position_camera_reference_frame(x, y, diameter_pix)
+        position_table = self.camera.transform_to_table_reference_frame(position_camera)
+        return position_table
 
 
 
