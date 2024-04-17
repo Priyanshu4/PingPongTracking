@@ -1,9 +1,7 @@
 import numpy as np
-import numpy.typing
 from typing import Annotated, Literal, TypeAlias
 
 StateVector: TypeAlias = Annotated[np.typing.NDArray[np.float64], Literal[12]]
-MeasurementVector: TypeAlias = Annotated[np.typing.NDArray[np.float64], Literal[6]]
 
 class StateComponent:
     # Position
@@ -38,6 +36,19 @@ class StateVectorUtilities:
         return np.zeros(12)
 
     @staticmethod
+    def wrap_angular_vector(x: np.array) -> np.array:
+        """ Wraps a vectors of angles to the range [-pi, pi].
+
+        Args:
+            x: The array of angles.
+            
+        Returns:
+            x: The vector with the angular states wrapped.
+        """
+        x = (x + np.pi) % (2 * np.pi) - np.pi
+        return x
+
+    @staticmethod
     def wrap_angles(x: StateVector) -> StateVector:
         """ Wraps the angular states of the state vector x to the range [-pi, pi].
 
@@ -47,7 +58,7 @@ class StateVectorUtilities:
         Returns:
             x (StateVector): The state vector with the angular states wrapped.
         """
-        x[StateComponent.AngularStates] = (x[StateComponent.AngularStates] + np.pi) % (2 * np.pi) - np.pi
+        x[StateComponent.AngularStates] = StateVectorUtilities.wrap_angular_vector(x[StateComponent.AngularStates])
         return x
 
     @staticmethod
@@ -126,74 +137,5 @@ class StateVectorUtilities:
         mean = StateVectorUtilities.init_state_vector()
         mean[StateComponent.LinearStates] = np.mean([state[StateComponent.LinearStates] for state in states], axis=0)
         mean[StateComponent.AngularStates] = StateVectorUtilities.angular_mean([state[StateComponent.AngularStates] for state in states])
-        return mean
-
-class MeasurementVectorUtilities:
-
-    @staticmethod
-    def init_measurement_vector() -> MeasurementVector:
-        """ Initializes a measurement vector with zeros.
-        """
-        return np.zeros(6)
-
-    @staticmethod
-    def wrap_angles(x: MeasurementVector) -> MeasurementVector:
-        """ Wraps the angular states of the measurement vector x to the range [-pi, pi].
-
-        Args:
-            x (MeasurementVector): The measurement vector to wrap.
-        
-        Returns:
-            x (MeasurementVector): The measurement vector with the angular states wrapped.
-        """
-        x[StateComponent.R_X:] = (x[StateComponent.R_X:] + np.pi) % (2 * np.pi) - np.pi
-        return x
-
-    @staticmethod
-    def sum(measurements: list[MeasurementVector]) -> MeasurementVector:
-        """ Computes the sum of a list of measurement vectors.
-
-        Args:
-            measurements (list[MeasurementVector]): The list of measurement vectors to sum.
-        
-        Returns:
-            sum (MeasurementVector): The sum of the measurement vectors.
-        """
-        return MeasurementVectorUtilities.wrap_angles(np.sum(measurements, axis=0))
-        
-    @staticmethod
-    def residual(a: MeasurementVector, b: MeasurementVector) -> MeasurementVector:
-        """ Computes the difference between two measurement vectors a and b.
-            This function ensures that the angular states are wrapped to the range [-pi, pi].
-            It differs from normal subtraction (since 359 deg - 1 deg = 2 deg).
-            A residual function is required for the Unscented Kalman Filter.
-
-        Args:
-            a (MeasurementVector): The first state vector.
-            b (MeasurementVector): The second state vector.
-        
-        Returns:
-            residual (MeasurementVector): The residual vector.
-        """
-        residual = MeasurementVectorUtilities.init_measurement_vector()
-        residual[StateComponent.X:StateComponent.Z+1] = a[StateComponent.X:StateComponent.Z+1] - b[StateComponent.X:StateComponent.Z+1]
-        residual[StateComponent.R_X:] = StateVectorUtilities.angular_residuals(a[StateComponent.R_X:], b[StateComponent.R_X:])
-        return residual   
-
-    @staticmethod
-    def mean(measurements: list[MeasurementVector]) -> MeasurementVector:
-        """ Computes the mean of a series of measurement vectors.
-            This function uses arithmetic mean for linear states and circular mean for angular states.
-            This mean function is required for the UKF.
-
-        Arguments:
-            measurements (list[MeasurementVector]): The list of measurement vectors.
-        
-        Returns:
-            mean (MeasurementVector): The mean of the measurement vectors.
-        """
-        mean = MeasurementVectorUtilities.init_measurement_vector()
-        mean[StateComponent.X:StateComponent.Z+1] = np.mean([x[StateComponent.X:StateComponent.Z+1] for x in measurements], axis=0)
-        mean[StateComponent.R_X:] = StateVectorUtilities.angular_mean([x[StateComponent.R_X:] for x in measurements])
         return mean
 
