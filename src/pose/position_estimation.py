@@ -26,13 +26,13 @@ class PositionEstimation:
         fy = self.camera.calibration.fy
         cx = self.camera.calibration.cx
         cy = self.camera.calibration.cy
-        d = self.ball.diameter
+        d = self.ball.diameter * 1000
   
         z_cam = (fx * d) / diameter_pix
         x_cam = ((x-cx) * z_cam) / fx
         y_cam = ((cy-y) * z_cam) / fy
 
-        return np.array([x_cam, y_cam, z_cam])
+        return np.array([x_cam, y_cam, z_cam])/1000
     
     def _to_table_reference_frame(self, position: np.ndarray) -> np.ndarray:
         """ Converts the ball's reference frame to the table reference frame.
