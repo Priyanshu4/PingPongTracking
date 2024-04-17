@@ -1,1 +1,1 @@
-from .camera import Camera, CameraCalibration, CameraSpecs
+from .camera import Camera, CameraCalibration, CameraSpecs, CameraPose
