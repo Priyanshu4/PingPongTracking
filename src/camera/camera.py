@@ -68,8 +68,11 @@ class Camera:
         
         """ Initializes a Camera object.
             Arguments:
-                position: np array with [x, y, z] coordinates in meters relative to closest center edge of table
-                orientation: np array with [roll, pitch, yaw] in radians relative to upright landscape position facing table
+                position: np array with [x, y, z] coordinates in meters relative to closest center edge of table.
+                    x corresponds to left (-) and right (+).
+                    y corresponds to down (-) and up (+).
+                    z corresponds to backward (-) and forward (+). Should always be backward.
+                orientation: np array with [roll, pitch, yaw] in radians relative to the [x, y, z] frame for position.
                 calibration: CameraCalibration object (optional if specs are provided)
                 specs: CameraSpecs object (optional)
         """
