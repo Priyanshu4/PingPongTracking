@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
+from camera import CameraCalibration
 
 # Define the dimensions of the chessboard (inner corners)
 def find_intrinsic_matrix(image, chessboard_size=(7,7)):
@@ -39,7 +40,7 @@ def find_intrinsic_matrix(image, chessboard_size=(7,7)):
 
         # Print the intrinsic matrix
         print("Intrinsic Matrix (Camera Matrix):\n", mtx)
-        return mtx
+        return CameraCalibration(mtx)
     
     print("Chessboard corners not found in the image.")
     return None
