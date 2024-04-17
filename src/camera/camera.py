@@ -60,15 +60,14 @@ class CameraCalibration:
         cy = camera_specs.height_pixels / 2
         return cls(intrinsic_matrix=np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]]))
 
-class Camera:
+class CameraPose:
+    """
+    CameraPose represents the position and orientation of a camera.
+    It handles transformations between the camera reference frame and the table reference frame.
+    """
 
-    def __init__(self, position: np.ndarray, orientation: Rotation,
-                       mirror_x: bool = False, mirror_y: bool = True,
-                       calibration: Optional[CameraCalibration] = None,
-                       specs: Optional[CameraSpecs] = None, 
-                       ):
-        
-        """ Initializes a Camera object.
+    def __init__(self, position: np.ndarray, orientation: Rotation, mirror_x: bool = False, mirror_y: bool = True):
+        """ Initializes a CameraPose object.
             Arguments:
                 position: np array with [x, y, z] coordinates in meters relative to center of the table.
                     Position should be specified in table reference frame.
@@ -97,24 +96,12 @@ class Camera:
                 calibration: CameraCalibration object (optional if specs are provided)
                 specs: CameraSpecs object (optional)
         """
-        if specs is None and calibration is None:
-            raise ValueError("Both camera specs and calibration cannot be None.")
-        
-        if calibration is None:
-            self.calibration = CameraCalibration.from_camera_specs(specs)
-        else:
-            self.calibration = calibration
-
         self.position = position
         self.orientation = orientation
         self.mirror_x = mirror_x
         self.mirror_y = mirror_y
 
-        self.specs = specs
-
     def transform_to_camera_reference_frame(self, position: np.ndarray) -> np.ndarray:
-        """ Transforms a position from table reference frame to camera reference frame.
-        """
         position = position + self.position
         position = self.orientation.apply(position)
         if self.mirror_x:
@@ -124,8 +111,6 @@ class Camera:
         return position
     
     def transform_to_table_reference_frame(self, position: np.ndarray) -> np.ndarray:
-        """ Transforms a position from camera reference frame to table reference frame.
-        """
         if self.mirror_x:
             position[0] = -position[0]
         if self.mirror_y:
@@ -133,6 +118,32 @@ class Camera:
         position = self.orientation.inv().apply(position)
         position = position - self.position
         return position
+
+class Camera:
+
+    def __init__(self, pose: CameraPose, 
+                       calibration: Optional[CameraCalibration] = None, 
+                       specs: Optional[CameraSpecs] = None):
+  
+        if specs is None and calibration is None:
+            raise ValueError("Both camera specs and calibration cannot be None.")
         
+        if calibration is None:
+            self.calibration = CameraCalibration.from_camera_specs(specs)
+        else:
+            self.calibration = calibration
 
+        self.pose = pose
+        self.specs = specs
 
+    def __getattr__(self, attr):
+        """ If attributes are not found in Camera, they are searched in CameraPose and CameraCalibration.
+        """
+        if attr in self.__dict__:
+            return self.__dict__[attr]
+        elif attr in self.pose.__dict__:
+            return getattr(self.pose, attr)
+        elif attr in self.calibration.__dict__:
+            return getattr(self.calibration, attr)
+        else:
+            raise AttributeError(f"'Camera' object has no attribute '{attr}'")
