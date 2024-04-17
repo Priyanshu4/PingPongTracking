@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 import yaml
+from scipy.spatial.transform import Rotation
 
 @dataclass
 class CameraSpecs:
@@ -61,18 +62,33 @@ class CameraCalibration:
 
 class Camera:
 
-    def __init__(self, position: np.ndarray, orientation: np.ndarray,
+    def __init__(self, position: np.ndarray, orientation: Rotation,
                        calibration: Optional[CameraCalibration] = None,
                        specs: Optional[CameraSpecs] = None, 
                        ):
         
         """ Initializes a Camera object.
             Arguments:
-                position: np array with [x, y, z] coordinates in meters relative to closest center edge of table.
-                    x corresponds to left (-) and right (+).
-                    y corresponds to down (-) and up (+).
-                    z corresponds to backward (-) and forward (+). Should always be backward.
-                orientation: np array with [roll, pitch, yaw] in radians relative to the [x, y, z] frame for position.
+                position: np array with [x, y, z] coordinates in meters relative to center of the table.
+                    Position should be specified in table reference frame.
+                     _____________ 
+                    |             |
+                    |             |
+                    |             |
+                   -----------------            
+                    |             |
+                    |             |
+                    |_____________|
+
+                    x corresponds to left (-) and right (+) of the net.
+                    y corresponds to left (-) and right (+) from the player's perspective.
+                    z corresponds to down (-) and up (+). 
+
+                orientation: scipy.spatial.transform.Rotation object representing the camera's orientation.
+                             This should be the rotation transform from table reference frame to camera reference frame.
+                             Consider that first the position transformation will be applied, then this rotation.
+                             In your camera reference frame, x is left (-) and right (+), y is up (-) and down (+), and z is depth.
+
                 calibration: CameraCalibration object (optional if specs are provided)
                 specs: CameraSpecs object (optional)
         """
@@ -87,8 +103,6 @@ class Camera:
         self.position = position
         self.orientation = orientation
         self.specs = specs
-
-
         
 
 
