@@ -16,6 +16,7 @@ class VideoStream:
 
     def __init__(self, source: str | Path | int):
         self.source = source
+        self.frames_read = 0
         if isinstance(source, Path):
             self.cap = cv2.VideoCapture(str(source))
         else:
@@ -27,7 +28,10 @@ class VideoStream:
     def __next__(self):
         ret, frame = self.cap.read()
         if not ret:
+            if self.frames_read == 0:
+                raise ValueError(f"Video {self.source} could not be read.")
             raise StopIteration
+        self.frames_read += 1
         return frame
     
     def __del__(self):

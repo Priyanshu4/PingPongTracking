@@ -1,12 +1,20 @@
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
-from .camera import CameraCalibration
+from typing import Optional
 
-# Define the dimensions of the chessboard (inner corners)
-def find_single_intrinsic_matrix(image, chessboard_size=(7,7)):
-    """
-    Takes opencv image and optional chessboardsize of internal corners to return the intrinsic matrix of the camera
+def find_single_intrinsic_matrix(image, chessboard_size=(7,7)) -> Optional[np.array]:
+    """ 
+    Finds the intrinsic matrix of the camera using a single OpenCV image of a chessboard pattern.
+    The chessboard size is defined by the number of internal corners in each row and column.
+    It should one less than the actual number of squares in each row and column, as we want to use inner corners.
+    
+    Args:
+        image (np.array): The OpenCV image of the chessboard pattern.
+        chessboard_size (tuple): The number of internal corners in each row and column.
+
+    Returns:
+        np.array: The intrinsic matrix of the camera.
     """
 
     objp = np.zeros((np.prod(chessboard_size), 3), np.float32)
@@ -45,11 +53,25 @@ def find_single_intrinsic_matrix(image, chessboard_size=(7,7)):
     print("Chessboard corners not found in the image.")
     return None
 
-def find_average_intrinsic_matrix(images, chessboard_size = (7,7)):
+def find_average_intrinsic_matrix(images, chessboard_size = (7,7)) -> Optional[np.array]:
+    """
+    Finds the average intrinsic matrix of the camera using multiple OpenCV images of a chessboard pattern.
+    The chessboard size is defined by the number of internal corners in each row and column.
+    It should one less than the actual number of squares in each row and column, as we want to use inner corners.
+
+    Args:
+        images (list): A list of OpenCV images of the chessboard pattern.
+        chessboard_size (tuple): The number of internal corners in each row and column.
+
+    Returns:
+        np.array: The average intrinsic matrix of the camera.
+    """
     matrices = list()
     for image in images:
         mtx = find_single_intrinsic_matrix(image,chessboard_size)
-        if mtx:
+        if mtx is not None:
             matrices.append(mtx)
     matrices_np = np.array(matrices)
-    return CameraCalibration(np.mean(matrices_np))
+    if len(matrices_np) == 0:
+        return None
+    return np.mean(matrices_np)

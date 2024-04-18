@@ -4,6 +4,9 @@ import numpy as np
 import yaml
 from scipy.spatial.transform import Rotation
 
+from intrinsic_matrix import find_average_intrinsic_matrix
+from video import VideoStream
+
 @dataclass
 class CameraSpecs:
     name: Optional[str]
@@ -59,6 +62,10 @@ class CameraCalibration:
         cx = camera_specs.width_pixels / 2
         cy = camera_specs.height_pixels / 2
         return cls(intrinsic_matrix=np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]]))
+    
+    @classmethod
+    def from_calibration_video(cls, video: VideoStream) -> 'CameraCalibration':
+        return cls(intrinsic_matrix=find_average_intrinsic_matrix(video))
 
 class CameraPose:
     """
