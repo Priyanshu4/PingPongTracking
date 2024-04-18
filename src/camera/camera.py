@@ -4,8 +4,8 @@ import numpy as np
 import yaml
 from scipy.spatial.transform import Rotation
 
-from intrinsic_matrix import find_average_intrinsic_matrix
-from video import VideoStream
+from .intrinsic_matrix import find_average_intrinsic_matrix
+from .video import VideoStream
 
 @dataclass
 class CameraSpecs:

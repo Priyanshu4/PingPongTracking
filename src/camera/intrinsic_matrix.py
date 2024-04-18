@@ -2,8 +2,9 @@ import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
 from typing import Optional
+from tqdm import tqdm
 
-def find_single_intrinsic_matrix(image, chessboard_size=(7,7)) -> Optional[np.array]:
+def find_single_intrinsic_matrix(image, chessboard_size=(7,7), show_image = False) -> Optional[np.array]:
     """ 
     Finds the intrinsic matrix of the camera using a single OpenCV image of a chessboard pattern.
     The chessboard size is defined by the number of internal corners in each row and column.
@@ -12,6 +13,7 @@ def find_single_intrinsic_matrix(image, chessboard_size=(7,7)) -> Optional[np.ar
     Args:
         image (np.array): The OpenCV image of the chessboard pattern.
         chessboard_size (tuple): The number of internal corners in each row and column.
+        show_image (bool): Whether to display the image with the chessboard corners.
 
     Returns:
         np.array: The intrinsic matrix of the camera.
@@ -35,19 +37,15 @@ def find_single_intrinsic_matrix(image, chessboard_size=(7,7)) -> Optional[np.ar
         objpoints.append(objp)
         imgpoints.append(corners)
 
-        # Draw chessboard corners on the image
-        image_with_corners = cv.drawChessboardCorners(image.copy(), chessboard_size, corners, ret)
-        
-        # Display the image with corners using Matplotlib
-        plt.imshow(cv.cvtColor(image_with_corners, cv.COLOR_BGR2RGB))
-        plt.axis('off')
-        plt.show()
+        if show_image:
+            image_with_corners = cv.drawChessboardCorners(image.copy(), chessboard_size, corners, ret)
+            plt.imshow(cv.cvtColor(image_with_corners, cv.COLOR_BGR2RGB))
+            plt.axis('off')
+            plt.show()
 
         # Calibrate camera
         ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
-        # Print the intrinsic matrix
-        print("Intrinsic Matrix (Camera Matrix):\n", mtx)
         return mtx 
     
     print("Chessboard corners not found in the image.")
@@ -68,10 +66,10 @@ def find_average_intrinsic_matrix(images, chessboard_size = (7,7)) -> Optional[n
     """
     matrices = list()
     for image in images:
-        mtx = find_single_intrinsic_matrix(image,chessboard_size)
+        mtx = find_single_intrinsic_matrix(image, chessboard_size, show_image = False)
         if mtx is not None:
             matrices.append(mtx)
     matrices_np = np.array(matrices)
     if len(matrices_np) == 0:
         return None
-    return np.mean(matrices_np)
+    return np.mean(matrices_np, axis=0)
