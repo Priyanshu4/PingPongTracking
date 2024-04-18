@@ -9,16 +9,18 @@ class BallUKF:
     """ Unscented Kalman Filter for the ping pong ball.
     """
 
-    def __init__(self, ball_constants: BallConstants, 
+    def __init__(self, ball: BallConstants, 
                  initial_state: StateVector, initial_state_covariance: np.ndarray, 
-                 process_noise: np.ndarray, measurement_mode: MeasurementMode):
+                 process_noise: np.ndarray, measurement_mode: MeasurementMode, default_dt: float = 0.01):
         """ Initializes the UKF for the ball.
         """
-        self.ball_constants = ball_constants
+        self.ball_constants = ball
         self.sigma_points = MerweScaledSigmaPoints(n=12, alpha=0.1, beta=2.0, kappa=0.0, subtract=StateVectorUtilities.residual)
         self.ukf = UKF(dim_x=12, 
                 dim_z=6, 
-                fx=partial(self.fx, ball_constants=ball_constants), 
+                fx=self.fx, 
+                dt=default_dt,
+                hx=measurement_mode.hx,
                 points=self.sigma_points,
                 x_mean_fn=StateVectorUtilities.mean, 
                 residual_x=StateVectorUtilities.residual)
@@ -116,9 +118,17 @@ class BallUKF:
     def state(self) -> StateVector:
         return self.ukf.x
     
+    @state.setter
+    def state(self, state: StateVector):
+        self.ukf.x = state
+    
     @property
     def state_covariance(self) -> np.ndarray:
         return self.ukf.P
+    
+    @state_covariance.setter
+    def state_covariance(self, state_covariance: np.ndarray):
+        self.ukf.P = state_covariance
 
     @property
     def measurement_noise(self) -> np.ndarray:
@@ -127,4 +137,8 @@ class BallUKF:
     @property
     def process_noise(self) -> np.ndarray:
         return self.ukf.Q
+    
+    @process_noise.setter
+    def process_noise(self, process_noise: np.ndarray):
+        self.ukf.Q = process_noise
     

@@ -19,6 +19,9 @@ class MeasurementMode(ABC):
         self.z_dim = z_dim
         self.noise = noise_matrix
 
+        if self.noise.shape != (z_dim, z_dim):
+            raise ValueError(f"Noise matrix must be of shape ({z_dim}, {z_dim}) for mode {self.__class__}.")
+
     def init_measurement_vector(self) -> MeasurementVector:
         """ Initializes a measurement vector with zeros.
         """
@@ -66,6 +69,10 @@ class PositionMeasurementMode(MeasurementMode):
     """
 
     def __init__(self, noise_matrix: np.ndarray):
+        """ Initializes the measurement mode.
+            Arguments:
+                noise_matrix (np.ndarray): 3 by 3 measurement noise matrix.
+        """
         super().__init__(z_dim=3, noise_matrix=noise_matrix)
 
     def hx(self, x: StateVector) -> MeasurementVector:
@@ -78,6 +85,10 @@ class OrientationMeasurementMode(MeasurementMode):
     """
 
     def __init__(self, noise_matrix: np.ndarray):
+        """ Initializes the measurement mode.
+            Arguments:
+                noise_matrix (np.ndarray): 3 by 3 measurement noise matrix.
+        """
         super().__init__(z_dim=3, noise_matrix=noise_matrix)
 
     def hx(self, x: StateVector) -> MeasurementVector:
@@ -97,6 +108,10 @@ class PoseMeasurementMode(MeasurementMode):
     """
 
     def __init__(self, noise_matrix: np.ndarray):
+        """ Initializes the measurement mode.
+            Arguments:
+                noise_matrix (np.ndarray): 6 by 6 measurement noise matrix.
+        """
         super().__init__(z_dim=6, noise_matrix=noise_matrix)
 
     def hx(self, x: StateVector) -> MeasurementVector:
