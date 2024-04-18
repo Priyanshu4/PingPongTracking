@@ -50,18 +50,19 @@ class MeasurementMode(ABC):
         return a - b
 
     
-    def mean(self, measurement_vectors: list[MeasurementVector]) -> MeasurementVector:
-        """ Computes the mean of a series of measurement vectors.
+    def mean(self, measurement_vectors: list[MeasurementVector], weights: np.array) -> MeasurementVector:
+        """ Computes the weighted mean of a series of measurement vectors.
             This function uses arithmetic mean for linear states and circular mean for angular states.
             This mean function is required for the UKF.
 
         Arguments:
             measurements (list[MeasurementVector]): The list of measurement vectors.
+            weights (np.typing.NDArray[np.float64]): The weights for the measurements.
         
         Returns:
             mean (MeasurementVector): The mean of the measurement vectors.
         """
-        return np.mean(measurement_vectors, axis=0)
+        return np.dot(weights, np.array(measurement_vectors, axis=0))
     
 
 class PositionMeasurementMode(MeasurementMode):
@@ -96,8 +97,8 @@ class OrientationMeasurementMode(MeasurementMode):
         """
         return x[StateComponent.R_X:StateComponent.R_Z+1]
     
-    def mean(self, measurement_vectors: list[MeasurementVector]) -> MeasurementVector:
-        return StateVectorUtilities.wrap_angular_vector(np.mean(measurement_vectors, axis=0))
+    def mean(self, measurement_vectors: list[MeasurementVector], weights: np.array) -> MeasurementVector:
+        return StateVectorUtilities.angular_vector_means(measurement_vectors, weights)
     
     def residual(self, a: MeasurementVector, b: MeasurementVector) -> MeasurementVector:
         residual = StateVectorUtilities.angular_residuals(a, b)
@@ -119,9 +120,13 @@ class PoseMeasurementMode(MeasurementMode):
         """
         return x[StateComponent.X:StateComponent.R_Z+1]
     
-    def mean(self, measurement_vectors: list[MeasurementVector]) -> MeasurementVector:
-        avg = np.mean(measurement_vectors, axis=0)
-        avg[StateComponent.R_X:] = StateVectorUtilities.wrap_angular_vector(avg[StateComponent.R_X:])
+    def mean(self, measurement_vectors: list[MeasurementVector], weights: np.array) -> MeasurementVector:
+        measurement_vectors = np.array(measurement_vectors)
+        angular_vectors = measurement_vectors[:, StateComponent.R_X:]
+        linear_vectors = measurement_vectors[:, StateComponent.X:StateComponent.Z+1]
+        linear_avg = np.dot(weights, linear_vectors)
+        angular_avg = StateVectorUtilities.angular_vector_means(angular_vectors, weights)
+        avg = np.hstack((linear_avg, angular_avg))
         return avg
 
     def residual(self, a: MeasurementVector, b: MeasurementVector) -> MeasurementVector:

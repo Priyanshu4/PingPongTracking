@@ -62,19 +62,19 @@ class StateVectorUtilities:
         return x
 
     @staticmethod
-    def angular_mean(angles: np.typing.NDArray[np.float64]) -> np.typing.NDArray[np.float64]:
-        """ Computes the circular mean of a series of angles.
+    def angular_vector_means(angle_vectors: np.array, weights: np.array) -> np.array:
+        """ Computes the weighted circular mean of a series of angle vectors.
             The angles should be in range [-pi, pi].
 
         Args:
-            angles (np.typing.NDArray[np.float64]): The array of angles.
-                   Could also be an array of vector of angles.
+            angles (np.typing.NDArray[np.float64]): The array of angle vectors.
+            weights (np.typing.NDArray[np.float64]): The array of weights for the vectors.
 
         Returns:
-            mean (float): The circular mean of the angles.
+            mean (np.array): The weighted circular mean of the anglular vectors.
         """
-        sin_sum = np.sum(np.sin(angles), axis=0)
-        cos_sum = np.sum(np.cos(angles), axis=0)
+        sin_sum = np.sum(np.sin(angle_vectors) * weights[:, np.newaxis], axis=0)
+        cos_sum = np.sum(np.cos(angle_vectors) * weights[:, np.newaxis], axis=0)
         return np.arctan2(sin_sum, cos_sum)
     
     @staticmethod
@@ -123,7 +123,7 @@ class StateVectorUtilities:
         return residual
 
     @staticmethod
-    def mean(states: list[StateVector]) -> StateVector:
+    def mean(states: list[StateVector], weights) -> StateVector:
         """ Computes the mean of a series of state vectors.
             This function uses arithmetic mean for linear states and circular mean for angular states.
             This mean function is required for the UKF.
@@ -135,7 +135,8 @@ class StateVectorUtilities:
             mean (StateVector): The mean of the state vectors.
         """
         mean = StateVectorUtilities.init_state_vector()
-        mean[StateComponent.LinearStates] = np.mean([state[StateComponent.LinearStates] for state in states], axis=0)
-        mean[StateComponent.AngularStates] = StateVectorUtilities.angular_mean([state[StateComponent.AngularStates] for state in states])
+        states = np.array(states)
+        mean[StateComponent.LinearStates] = np.dot(weights, states[:, StateComponent.LinearStates])
+        mean[StateComponent.AngularStates] = StateVectorUtilities.angular_vector_means(states[:, StateComponent.AngularStates], weights)
         return mean
 
