@@ -1,8 +1,7 @@
-from src.camera import Camera
+from src.camera import Camera, CameraPose
 from src.pingpong.ball import BallConstants
 from src.pingpong.table import TableConstants
 import numpy as np
-from scipy.spatial.transform import Rotation
 
 class PositionEstimation:
 
@@ -11,7 +10,7 @@ class PositionEstimation:
         self.ball = ball
         self.table = table
 
-    def ball_position_camera_reference_frame(self, x, y, diameter_pix):
+    def ball_position_camera_reference_frame(self, x: int, y: int, diameter_pix: int):
         """ Estimates the ball's position in the camera's frame of reference.
             Note that in camera's frame of reference, the z-axis is depth from the camera.
             In the table's frame of reference, the z-axis is up and down.
@@ -26,15 +25,15 @@ class PositionEstimation:
         fy = self.camera.calibration.fy
         cx = self.camera.calibration.cx
         cy = self.camera.calibration.cy
-        d = self.ball.diameter * 1000
+        d = self.ball.diameter
   
         z_cam = (fx * d) / diameter_pix
         x_cam = ((x-cx) * z_cam) / fx
         y_cam = ((y-cy) * z_cam) / fy
 
-        return np.array([x_cam, y_cam, z_cam])/1000
+        return np.array([x_cam, y_cam, z_cam])
     
-    def ball_position_table_reference_frame(self, x, y, diameter_pix):
+    def ball_position_table_reference_frame(self, x: int, y: int, diameter_pix: int) -> np.array:
         """ Estimates the ball's position in the table's frame of reference.
         Arguments:
             x: the x pixel coordinate of the ball's center
@@ -44,7 +43,7 @@ class PositionEstimation:
             position: Ball's position in meters in table's reference frame as np array of [x, y, z] 
         """
         position_camera = self.ball_position_camera_reference_frame(x, y, diameter_pix)
-        position_table = self.camera.transform_to_table_reference_frame(position_camera)
+        position_table = self.camera.pose.transform_to_table_reference_frame(position_camera)
         return position_table
 
 
