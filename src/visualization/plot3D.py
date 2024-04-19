@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import matplotlib.animation as animation
 
 def plot_table(ax: Axes3D, table: TableConstants, table_color='blue', net_color='grey', set_limits=True):
     """ Given an Axes3D, this plots the table and net onto it.
@@ -85,12 +86,24 @@ def plot_camera(ax: Axes3D, camera: Camera | CameraPose, length = 0.5,
                 camera.orientation.apply([0, 0, 0.1])[2],
                 pivot='tail', length=length, normalize=True, color=color_z)
 
-def plot_sphere(ax, center, radius, color='orange', alpha=0.7):
+def plot_sphere(ax: Axes3D, center: np.array, radius: float, color='orange', alpha=0.7):
+    """ Given an Axes3D, this plots a sphere onto it.
+    
+        Arguments:
+            ax (Axes3D): The 3D axes.
+            center: The center of the sphere as an array or list of length 3.
+            radius: The radius of the sphere.
+            color: Matplotlib color for the sphere.
+            alpha: Transparency of the sphere.
+
+        Returns:
+            The surface returned by ax.plot_surface
+    """
     u, v = np.mgrid[0:2*np.pi:20j, 0:np.pi:10j]
     x = center[0] + radius * np.cos(u) * np.sin(v)
     y = center[1] + radius * np.sin(u) * np.sin(v)
     z = center[2] + radius * np.cos(v)
-    ax.plot_surface(x, y, z, color=color, alpha=alpha)
+    return ax.plot_surface(x, y, z, color=color, alpha=alpha)
 
 def plot_balls(ax: Axes3D, ball: BallConstants, ball_positions: np.ndarray):
     """ Given an Axes3D and a list of ball positions, this plots the balls onto the Axes3D.
@@ -134,3 +147,30 @@ def view_from_camera_angle(ax: Axes3D, camera: Camera | CameraPose):
     azimuth = camera.orientation.as_euler('xyz', degrees=True)[2] - 90
     ax.view_init(elev=elevation, azim=azimuth)
 
+def animate_trajectory(fig, ax: Axes3D, trajectory: np.array, dt: float, ball: BallConstants, ball_color="orange", ball_alpha=1) -> animation.FuncAnimation:
+    """ Given a trajectory of the ball's center, this animates the ball's motion in 3D.
+        This function does not plot the table or net and assumes that those are already plotted.
+        The trajectory is a numpy array with shape (n, 3) where n is the number of datapoints.
+        
+        Rather than showing the plot, this returns the animation object. 
+        The animation object MUST be stored in a variable, otherwise it will be garbage collected and the animation will not show.
+        To show the animation, use plt.show() after calling this function.
+
+        Arguments:
+            fig: The figure to plot on.
+            trajectory (np.array): The trajectory to animate as numpy array with shape (n, 3).
+            dt: The time between each frame in seconds.
+    """
+    sf = None
+
+    def init():
+        nonlocal sf
+        sf = plot_sphere(ax, trajectory[0], ball.radius, color=ball_color, alpha=ball_alpha)
+
+    def animate(i):
+        nonlocal sf
+        sf.remove()
+        sf = plot_sphere(ax, trajectory[i], ball.radius, color=ball_color, alpha=ball_alpha)
+
+    ani = animation.FuncAnimation(fig, animate, frames=len(trajectory), init_func=init, interval=dt*1000, blit=False)
+    return ani
