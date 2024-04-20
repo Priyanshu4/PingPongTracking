@@ -1,7 +1,7 @@
 import cv2
 from typing import Optional
 import numpy as np
-from .ellipse import Ellipse
+from .ellipse import Ellipse, Circle
 from typing import Tuple
 
 class AntiSmear:
@@ -42,17 +42,17 @@ class AntiSmear:
             return 1
         return -1
     
-    def find_original_ball(self, ball_mask, ball_speed_x, ball_speed_y) -> Optional[Tuple[Ellipse, Ellipse]]:
+    def find_original_ball(self, ball_mask, ball_speed_x, ball_speed_y) -> Optional[Tuple[Circle, Ellipse]]:
         """ Finds the original ball using the segmented mask of the ball smear.
             Considers an estimate of the sign of ball's speed in the x and y pixel directions.
             Be careful to consider that y-direction is inverted in images.
-            Returns an tuple of the ball's Ellipse and the smear's ellipse.
+            Returns an tuple of the ball's Circle and the smear's ellipse.
             Args:
                 ball_mask: Segmented mask of the ball smear.
                 ball_speed_x: Estimated speed of the ball in the x direction (pixels, only sign matters).
                 ball_speed_y: Estimated speed of the ball in the y direction (pixels, only sign matters).
             Returns:
-                Tuple of the ball's Ellipse and the smear's ellipse.
+                Tuple of the ball's Circle and the smear's ellipse.
                 If no ellipse is found, returns None.
         """
         ellipse = self._find_ellipses(ball_mask)
@@ -79,7 +79,7 @@ class AntiSmear:
         y = yc + (l-s)*np.abs(np.sin(alpha)) * self._sign(velocity_vector[1])
         x, y = int(x), int(y)
 
-        ball = Ellipse(x, y, s, s, ellipse.angle)
+        ball = Circle(x, y, s)
 
         return ball, ellipse
 

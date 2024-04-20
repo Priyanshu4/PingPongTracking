@@ -29,7 +29,7 @@ class Ellipse:
             return cls(ellipse[0][0], ellipse[0][1], height/2, width/2, ellipse[2] + 90)
         else:
             return cls(ellipse[0][0], ellipse[0][1], width/2, height/2, ellipse[2])
-    
+        
     @property
     def angle_rad(self) -> float:
         """ Angle of rotation in radians.
@@ -43,10 +43,53 @@ class Ellipse:
         v = [x, y]
         return np.array(v)
     
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"Ellipse(center_x={self.center_x}, center_y={self.center_y}, short_radius={self.short_radius}, long_radius={self.long_radius}, angle={self.angle})"    
+    
 
+@dataclass
+class Circle(Ellipse):
 
+    def __init__(self, center_x: float, center_y: float, radius: float):
+        super().__init__(center_x, center_y, radius, radius, 0)
+
+    def __post_init__(self):
+        if self.long_radius != self.short_radius:
+            raise ValueError("Circle must have equal long and short radius.")
+    
+    @classmethod
+    def from_ellipse(cls, ellipse: Ellipse) -> 'Circle':
+        """ Creates a Circle object from an Ellipse object.
+            Args:
+                ellipse: Ellipse object representing the circle.
+            Returns:
+                Circle object.
+        """
+        return cls(ellipse.center_x, ellipse.center_y, ellipse.long_radius, ellipse.short_radius, ellipse.angle)
+    
+    @classmethod
+    def from_tuple(cls, circle: Tuple[float, float, float]) -> 'Circle':
+        """ Creates a Circle object from a tuple of (center_x, center_y, radius).
+            Args:
+                circle: Tuple of (center_x, center_y, radius).
+            Returns:
+                Circle object.
+        """
+        return cls(circle[0], circle[1], circle[2])
+
+    def __repr__(self) -> str:
+        return f"Circle(center_x={self.center_x}, center_y={self.center_y}, radius={self.long_radius})"
+    
+    @property
+    def radius(self) -> float:
+        return self.long_radius
+    
+    def as_tuple(self) -> Tuple[float, float, float]:
+        return (self.center_x, self.center_y, self.radius)
+    
+    def as_tuple_int(self) -> Tuple[int, int, int]:
+        return (int(self.center_x), int(self.center_y), int(self.radius))
+    
 def draw_ellipse_on_image(img: np.ndarray, ellipse: Ellipse, color: Tuple[int, int, int], thickness: int) -> np.ndarray:
     """ Draws an ellipse (represented by Ellipse) on an image.
         Remember that OpenCV coordinate system starts with (0, 0) on the top-left corner. 
