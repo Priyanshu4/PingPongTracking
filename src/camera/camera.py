@@ -106,6 +106,8 @@ class CameraPose:
         self.mirror_y = mirror_y
 
     def transform_to_camera_reference_frame(self, position: np.ndarray) -> np.ndarray:
+        """ Transforms a position from table reference frame to camera reference frame.
+        """
         position = position + self.position
         position = self.orientation.apply(position)
         if self.mirror_x:
@@ -115,6 +117,8 @@ class CameraPose:
         return position
     
     def transform_to_table_reference_frame(self, position: np.ndarray) -> np.ndarray:
+        """ Transforms a position from camera reference frame to table reference frame.
+        """
         if self.mirror_x:
             position[0] = -position[0]
         if self.mirror_y:
