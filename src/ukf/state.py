@@ -102,7 +102,21 @@ class StateVectorUtilities:
             sum (StateVector): The sum of the state vectors.
         """
         return StateVectorUtilities.wrap_angles(np.sum(states, axis=0))
-          
+
+   
+    @staticmethod
+    def add(x1: StateVector, x2: StateVector) -> StateVector:
+        """ Computes the sum of two state vectors.
+
+        Args:
+            x1 (StateVector): The first state vector.
+            x2 (StateVector): The second state vector.
+        
+        Returns:
+            sum (StateVector): The sum of the state vectors.
+        """
+        return StateVectorUtilities.sum([x1, x2])
+
     @staticmethod
     def residual(a: StateVector, b: StateVector) -> StateVector:
         """ Computes the difference between two state vectors a and b.

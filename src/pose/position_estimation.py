@@ -51,6 +51,7 @@ class PositionEstimation:
         """ 
         Projects the ball's position in the camera's reference frame to the camera's plane.
         Basically, this calculates the inverse of ball_position_camera_reference_frame.
+        If the z position is less than or equal to 0, it is set to a tenth of ball diameter to avoid division by zero and negatives.
 
         Arguments:
             position: Ball's position in meters in camera's reference frame as np array of [x, y, z]
@@ -67,6 +68,9 @@ class PositionEstimation:
         d = self.ball.diameter
 
         x_cam, y_cam, z_cam = position
+        if (z_cam <= 0):
+            z_cam = d/10
+
         diameter_pix = round((fx * d) / z_cam)
         x = round((x_cam * fx) / z_cam + cx)
         y = round((y_cam * fy) / z_cam + cy)

@@ -73,7 +73,7 @@ class CameraPose:
     It handles transformations between the camera reference frame and the table reference frame.
     """
 
-    def __init__(self, position: np.ndarray, orientation: Rotation, mirror_x: bool = False, mirror_y: bool = True):
+    def __init__(self, position: np.ndarray, orientation: Rotation, mirror_x: bool = False, mirror_y: bool = False):
         """ Initializes a CameraPose object.
             Arguments:
                 position: np array with [x, y, z] coordinates in meters relative to center of the table.
@@ -96,8 +96,8 @@ class CameraPose:
                              Consider that first the position transformation will be applied, then this rotation.
                              In your camera reference frame, x is left (-) and right (+), y is up (-) and down (+), and z is depth.
 
-                mirror_x: bool, whether to mirror the x-axis of the camera.
-                mirror_y: bool, whether to mirror the y-axis of the camera.
+                mirror_x: bool, whether to mirror the x-axis of the camera (after other transformations).
+                mirror_y: bool, whether to mirror the y-axis of the camera (after other transformations).
                     After orientation is applied, the camera will be mirrored.
         """
         self.position = position
@@ -108,8 +108,8 @@ class CameraPose:
     def transform_to_camera_reference_frame(self, position: np.ndarray) -> np.ndarray:
         """ Transforms a position from table reference frame to camera reference frame.
         """
-        position = position + self.position
-        position = self.orientation.apply(position)
+        position = position - self.position
+        position = self.orientation.inv().apply(position)
         if self.mirror_x:
             position[0] = -position[0]
         if self.mirror_y:
@@ -123,8 +123,8 @@ class CameraPose:
             position[0] = -position[0]
         if self.mirror_y:
             position[1] = -position[1]
-        position = self.orientation.inv().apply(position)
-        position = position - self.position
+        position = self.orientation.apply(position)
+        position = position + self.position
         return position
 
 class Camera:

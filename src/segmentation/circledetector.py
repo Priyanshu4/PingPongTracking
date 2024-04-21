@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from typing import Tuple
+from .likelyregion import ImageRegion
 
 class CircleDetector:
     """ Detects the ping pong ball assuming it is a perfect circle (no blur).
@@ -24,7 +25,7 @@ class CircleDetector:
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, minDist, param1=param1, param2=param2, minRadius=minRadius, maxRadius=maxRadius)
         if circles is None:
-            raise ValueError("No circles detected. Try adjusting the Hough Circle Transform parameters.")
+            return np.array([])
         circles = np.uint16(np.around(circles))[0]
         return circles
     
@@ -74,6 +75,24 @@ class CircleDetector:
             color_mask = cv2.inRange(masked_img, color_low, color_high)
             color_portion = cv2.countNonZero(color_mask) / (np.pi * r * r)
             if color_portion >= threshold:
+                filtered_circles.append(circle)
+
+        return np.array(filtered_circles)
+    
+    def filter_to_region(self, img: np.ndarray, circles: np.ndarray, region: ImageRegion) -> np.ndarray:
+        """ Filters circles to a region.
+
+            Args:
+                img: OpenCV image.
+                circles: Detected circles as numpy array of (x, y, r) tuples.
+                region: ImageRegion object.
+            Returns:
+                filtered_circles: Circles that are within the region.
+        """
+        filtered_circles = []
+        for circle in circles:
+            x, y, r = circle
+            if x >= region.x_min and x <= region.x_max and y >= region.y_min and y <= region.y_max and r*2 >= region.d_min and r*2 <= region.d_max:
                 filtered_circles.append(circle)
 
         return np.array(filtered_circles)

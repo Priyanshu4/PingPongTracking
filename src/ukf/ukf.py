@@ -3,7 +3,7 @@ from .state import StateVector, StateComponent, StateVectorUtilities
 from .measurement import MeasurementMode, MeasurementVector
 from src.pingpong.ball import BallConstants
 import numpy as np
-from functools import partial
+import scipy.linalg
 
 class BallUKF:
     """ Unscented Kalman Filter for the ping pong ball.
@@ -14,16 +14,24 @@ class BallUKF:
                  process_noise: np.ndarray, measurement_mode: MeasurementMode, default_dt: float = 0.01):
         """ Initializes the UKF for the ball.
         """
+        self.state_dim = 12
         self.ball_constants = ball
-        self.sigma_points = MerweScaledSigmaPoints(n=12, alpha=0.1, beta=2.0, kappa=0.0, subtract=StateVectorUtilities.residual)
-        self.ukf = UKF(dim_x=12, 
-                dim_z=6, 
-                fx=self.fx, 
-                dt=default_dt,
-                hx=measurement_mode.hx,
-                points=self.sigma_points,
-                x_mean_fn=StateVectorUtilities.mean, 
-                residual_x=StateVectorUtilities.residual)
+        self.sigma_points = MerweScaledSigmaPoints(
+            n=self.state_dim, 
+            alpha=0.1, 
+            beta=2.0, 
+            kappa=3-self.state_dim, 
+            sqrt_method=self._sqrt_func,
+            subtract=StateVectorUtilities.residual)
+        self.ukf = UKF(
+            dim_x=self.state_dim,
+            dim_z=measurement_mode.z_dim,
+            fx=self.fx, 
+            dt=default_dt,
+            hx=measurement_mode.hx,
+            points=self.sigma_points,
+            x_mean_fn=StateVectorUtilities.mean, 
+            residual_x=StateVectorUtilities.residual)
             
         self.state = initial_state                          # Initialize the state
         self.state_covariance = initial_state_covariance    # Initialize the state covariance matrix
@@ -31,7 +39,13 @@ class BallUKF:
 
         self.set_measurement_mode(measurement_mode)         # Set the measurement mode for the UKF  
         
-        self.ukf.predict(0)
+    def _sqrt_func(self, x):
+        try:
+            result = scipy.linalg.cholesky(x)
+        except scipy.linalg.LinAlgError as e:
+            x = (x + x.T)/2 # Force the matrix to be symmetric
+            result = scipy.linalg.cholesky(x)
+        return result
 
     def set_measurement_mode(self, measurement_mode: MeasurementMode):
         """ Sets the measurement mode for the UKF.
@@ -128,6 +142,7 @@ class BallUKF:
     
     @state_covariance.setter
     def state_covariance(self, state_covariance: np.ndarray):
+        self._check_positive_definite(state_covariance)
         self.ukf.P = state_covariance
 
     @property
@@ -140,5 +155,10 @@ class BallUKF:
     
     @process_noise.setter
     def process_noise(self, process_noise: np.ndarray):
+        self._check_positive_definite(process_noise)
         self.ukf.Q = process_noise
     
+    def _check_positive_definite(self, m):
+        """ Raises an exception if the matrix is not positive definite.
+        """
+        scipy.linalg.cholesky(m)

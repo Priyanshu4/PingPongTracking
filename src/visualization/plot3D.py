@@ -68,8 +68,8 @@ def plot_camera(ax: Axes3D, camera: Camera | CameraPose, length = 0.5,
             color_z: Matplotlib color for the z-axis arrow.
     """
     camera_position = camera.position
-    x_flip = 1 if camera.mirror_x else -1
-    y_flip = 1 if camera.mirror_y else -1
+    x_flip = -1 if camera.mirror_x else 1
+    y_flip = -1 if camera.mirror_y else 1
     ax.quiver3D(camera_position[0], camera_position[1], camera_position[2],
                 camera.orientation.apply([0.1, 0, 0])[0] * x_flip,
                 camera.orientation.apply([0.1, 0, 0])[1] * x_flip,
