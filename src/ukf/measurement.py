@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import TypeAlias
+
+from numpy.core.multiarray import array as array
 from .state import StateVector, StateComponent, StateVectorUtilities
+from src.pose.position_estimation import PositionEstimation
 import numpy as np
 
 MeasurementVector: TypeAlias = np.typing.NDArray[np.float64]
@@ -46,7 +49,6 @@ class MeasurementMode(ABC):
         Returns:
             residual (MeasurementVector): The residual vector.
         """
-        residual = self.init_measurement_vector()
         return a - b
 
     
@@ -135,5 +137,57 @@ class PoseMeasurementMode(MeasurementMode):
         residual[StateComponent.R_X:] = StateVectorUtilities.angular_residuals(a[StateComponent.R_X:], b[StateComponent.R_X:])
         return residual  
 
+
+class PixelPositionMeasurementMode(MeasurementMode):
+    """ Measurement mode when we only measure the pixel position and diameter of the ball.
+    """
+
+    def __init__(self, noise_matrix: np.ndarray, position_estimator: PositionEstimation):
+        """ Initializes the measurement mode.
+            Arguments:
+                noise_matrix (np.ndarray): 3 by 3 measurement noise matrix.
+        """
+        super().__init__(z_dim=3, noise_matrix=noise_matrix)
+        self.position_estimator = position_estimator
+
+    def hx(self, x: StateVector) -> MeasurementVector:
+        """ Measurement function for the pixel position mode.
+        """
+        return self.position_estimator.project_ball_position_table_reference_frame_to_camera_plane(x[:3])
+    
+class PixelPositionAndOrientationMeasurementMode(MeasurementMode):
+    """ Measurement mode when we only measure the pixel position and diameter of the ball.
+    """
+
+    def __init__(self, noise_matrix: np.ndarray, position_estimator: PositionEstimation):
+        """ Initializes the measurement mode.
+            Arguments:
+                noise_matrix (np.ndarray): 6 by 6 measurement noise matrix.
+        """
+        super().__init__(z_dim=6, noise_matrix=noise_matrix)
+        self.position_estimator = position_estimator
+
+    def hx(self, x: StateVector) -> MeasurementVector:
+        """ Measurement function for the pixel position mode.
+        """
+        z = self.init_measurement_vector()
+        z[:3] = self.position_estimator.project_ball_position_table_reference_frame_to_camera_plane(x[:3])
+        z[3:] = x[StateComponent.R_X:StateComponent.R_Z+1]
+
+    def mean(self, measurement_vectors: list[MeasurementVector], weights: np.array) -> MeasurementVector:
+        measurement_vectors = np.array(measurement_vectors)
+        angular_vectors = measurement_vectors[:, StateComponent.R_X:]
+        linear_vectors = measurement_vectors[:, StateComponent.X:StateComponent.Z+1]
+        linear_avg = np.dot(weights, linear_vectors)
+        angular_avg = StateVectorUtilities.angular_vector_means(angular_vectors, weights)
+        avg = np.hstack((linear_avg, angular_avg))
+        return avg
+      
+    def residual(self, a: MeasurementVector, b: MeasurementVector) -> MeasurementVector:
+        residual = self.init_measurement_vector()
+        residual[StateComponent.X:StateComponent.Z+1] = a[StateComponent.X:StateComponent.Z+1] - b[StateComponent.X:StateComponent.Z+1]
+        residual[StateComponent.R_X:] = StateVectorUtilities.angular_residuals(a[StateComponent.R_X:], b[StateComponent.R_X:])
+        return residual  
+  
 
 

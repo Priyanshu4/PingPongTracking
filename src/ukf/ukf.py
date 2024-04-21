@@ -1,9 +1,10 @@
-from filterpy.kalman import UnscentedKalmanFilter as UKF, MerweScaledSigmaPoints
+from filterpy.kalman import UnscentedKalmanFilter as UKF, MerweScaledSigmaPoints, unscented_transform
 from .state import StateVector, StateComponent, StateVectorUtilities
 from .measurement import MeasurementMode, MeasurementVector
 from src.pingpong.ball import BallConstants
 import numpy as np
 import scipy.linalg
+from typing import Tuple
 
 class BallUKF:
     """ Unscented Kalman Filter for the ping pong ball.
@@ -127,6 +128,41 @@ class BallUKF:
         x_new[StateComponent.V_X:StateComponent.V_Z+1] += (drag + magnus + gravity) * dt
         x_new = StateVectorUtilities.wrap_angles(x_new)
         return x_new
+    
+    def get_high_likelihood_measurement_region(self, n_std_devs: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """ Estimates a bounding box around the mean of the measurement distribution.
+            The bounding box is a region that includes n standard deviations around the mean.
+            It is defined by two points, the lower and upper bounds of the region.
+            The mean and covariance of the transformed points are also returned.
+
+        Args:
+            n_std_devs (float): The number of standard deviations to include in the region.
+
+        Returns:
+            lower_bound (np.array): The lower bound of the bounding box.
+            upper_bound (np.array): The upper bound of the bounding box.
+            mu_transformed (np.array): The mean of the transformed points.
+            cov_transformed (np.ndarray): The covariance of the transformed points.
+        """
+        sigmas = self.sigma_points.sigma_points(self.state, self.state_covariance)
+
+        # Transform sigma points through the non-linear measurement function
+        transformed_sigmas = np.array([self.ukf.hx(sigma) for sigma in sigmas])
+
+        # Calculate the mean and covariance of the transformed points
+        mu_transformed, cov_transformed = unscented_transform(
+                                            transformed_sigmas, 
+                                            self.sigma_points.Wm, 
+                                            self.sigma_points.Wc,
+                                            mean_fn=self.ukf.z_mean)
+        
+        # Estimating a bounding box (95% confidence interval) around the mean
+        std_dev = np.sqrt(np.diag(cov_transformed))
+
+        lower = np.array(mu_transformed - n_std_devs * std_dev)
+        upper = np.array(mu_transformed + n_std_devs * std_dev)
+
+        return lower, upper, mu_transformed, cov_transformed
 
     @property
     def state(self) -> StateVector:
@@ -135,6 +171,10 @@ class BallUKF:
     @state.setter
     def state(self, state: StateVector):
         self.ukf.x = state
+
+    @property
+    def measurement_dim(self) -> int:
+        return self.ukf.z_dim
     
     @property
     def state_covariance(self) -> np.ndarray:
@@ -162,3 +202,5 @@ class BallUKF:
         """ Raises an exception if the matrix is not positive definite.
         """
         scipy.linalg.cholesky(m)
+
+    
