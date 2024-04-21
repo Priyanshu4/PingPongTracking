@@ -62,7 +62,7 @@ class MeasurementMode(ABC):
         Returns:
             mean (MeasurementVector): The mean of the measurement vectors.
         """
-        return np.dot(weights, np.array(measurement_vectors, axis=0))
+        return np.dot(weights, np.array(measurement_vectors))
     
 
 class PositionMeasurementMode(MeasurementMode):
