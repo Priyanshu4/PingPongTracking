@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from typing import Tuple
-from .likelyregion import ImageRegion
+from .crop import ImageRegion
 
 class CircleDetector:
     """ Detects the ping pong ball assuming it is a perfect circle (no blur).
@@ -79,20 +79,24 @@ class CircleDetector:
 
         return np.array(filtered_circles)
     
-    def filter_to_region(self, img: np.ndarray, circles: np.ndarray, region: ImageRegion) -> np.ndarray:
+    def filter_to_region(self, img: np.ndarray, circles: np.ndarray, lower: np.array, upper np.array) -> np.ndarray:
         """ Filters circles to a region.
 
             Args:
                 img: OpenCV image.
                 circles: Detected circles as numpy array of (x, y, r) tuples.
-                region: ImageRegion object.
+                lower: Lower bound of the region.
+                upper: Upper bound of the region.
             Returns:
                 filtered_circles: Circles that are within the region.
         """
+        x_min, y_min, x_max, y_max = lower[0], lower[1], upper[0], upper[1]
+        d_min, d_max = lower[2], upper[2]
+
         filtered_circles = []
         for circle in circles:
             x, y, r = circle
-            if x >= region.x_min and x <= region.x_max and y >= region.y_min and y <= region.y_max and r*2 >= region.d_min and r*2 <= region.d_max:
+            if x >= x_min and x <= x_max and y >= y_min and y <= y_max and r*2 >= d_min and r*2 <= d_max:
                 filtered_circles.append(circle)
 
         return np.array(filtered_circles)
