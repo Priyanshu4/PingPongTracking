@@ -1,3 +1,3 @@
 *.pyc
 .DS_Store
-/models/yolo8l-world.pt
+/models/yolov8l-world.pt
