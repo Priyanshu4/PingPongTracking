@@ -8,14 +8,13 @@ class SplitYoloDetector:
         Uses an ImageSplitter to split the image into smaller parts and run the Yolo model on each part.
     """
 
-    def __init__(self, yolo_model, image_splitter: ImageSplitter):
+    def __init__(self, yolo_model, image_splitter: ImageSplitter, ball_classes: list[str]):
         self.yolo_model = yolo_model
-        self.yolo_model.set_classes(['person', 'ping pong ball', 'ball', 'sports ball'])
-        self.ball_classes = [1, 2, 3]
+        self.yolo_model.set_classes(['person'] + ball_classes)
         self.image_splitter = image_splitter
 
     def is_ball(self, yolo_cls: int) -> bool:
-        return yolo_cls == 1 or yolo_cls == 2 or yolo_cls == 3
+        return yolo_cls > 0
 
     def detect(self, img: np.ndarray, yolo_verbose: bool = False, debug_plots: bool = False) -> Tuple[Optional[list[int]], float]:
         """ Detects the ping pong ball in an image.
@@ -36,7 +35,7 @@ class SplitYoloDetector:
             box, confidence = self.detect_in_split(split_image, start_x, start_y, yolo_verbose)
 
             if box is not None and debug_plots:
-                self.draw_bounding_box(img, box, confidence)
+                self.draw_bounding_box(split_image, [box[0] - start_x, box[1] - start_y, box[2] - start_x, box[3] - start_y], confidence)
                 self.image_splitter.split_images[i] = split_image
 
 
@@ -85,7 +84,7 @@ class SplitYoloDetector:
             box, confidence = self.detect_in_split(split_image, start_x, start_y, yolo_verbose)
 
             if box is not None and debug_plots:
-                self.draw_bounding_box(img, box, confidence)
+                self.draw_bounding_box(split_image, [box[0] - start_x, box[1] - start_y, box[2] - start_x, box[3] - start_y], confidence)
                 self.image_splitter.split_images[i] = split_image
 
             if confidence > highest_confidence:

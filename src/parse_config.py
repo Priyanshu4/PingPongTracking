@@ -52,18 +52,24 @@ class Config:
         
         if isinstance(self._background_image, int):
             self.background_image = frames[self._background_image]
-        else:
+        elif self._background_image is not None:
             self.background_image = cv2.imread(str(self._background_image))
+        else:
+            self.background_image = None
         
         if isinstance(self._close_ball_image, int):
             self.close_ball_image = frames[self._close_ball_image]
-        else:
+        elif self._close_ball_image is not None:    
             self.close_ball_image = cv2.imread(str(self._close_ball_image))
+        else:
+            self.close_ball_image = None
         
         if isinstance(self._far_ball_image, int):
             self.far_ball_image = frames[self._far_ball_image]
-        else:
+        elif self._far_ball_image is not None:
             self.far_ball_image = cv2.imread(str(self._far_ball_image))
+        else:    
+            self.far_ball_image = None
 
     def parse_path(self, path: Path) -> Path:
         return PROJECT_ROOT / path

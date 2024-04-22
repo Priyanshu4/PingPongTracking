@@ -9,7 +9,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import matplotlib.animation as animation
 
-def plot_table(ax: Axes3D, table: TableConstants, table_color='blue', net_color='grey', set_limits=True):
+def plot_table(ax: Axes3D, table: TableConstants, table_color='blue', net_color='grey', table_alpha = 0.9, net_alpha = 0.7, set_limits=True):
     """ Given an Axes3D, this plots the table and net onto it.
         If set_limits is True, the limits of the plot are set based on the table's length.
     
@@ -30,7 +30,7 @@ def plot_table(ax: Axes3D, table: TableConstants, table_color='blue', net_color=
         [table_mid_x, table_mid_y, table.height],
         [table_mid_x, -table_mid_y, table.height],
     ]
-    table_poly = Poly3DCollection([corners], facecolors=table_color, edgecolors='black', alpha=0.9)
+    table_poly = Poly3DCollection([corners], facecolors=table_color, edgecolors='black', alpha=table_alpha)
     ax.add_collection3d(table_poly)
     
     # Plot the net
@@ -41,7 +41,7 @@ def plot_table(ax: Axes3D, table: TableConstants, table_color='blue', net_color=
         [0, table.net_width/2, table.height],
     ]
 
-    net_poly = Poly3DCollection([net_corners], facecolors=net_color, edgecolors='black', alpha=1)
+    net_poly = Poly3DCollection([net_corners], facecolors=net_color, edgecolors='black', alpha=net_alpha)
     ax.add_collection3d(net_poly)
 
     if set_limits:
@@ -85,6 +85,20 @@ def plot_camera(ax: Axes3D, camera: Camera | CameraPose, length = 0.5,
                 camera.orientation.apply([0, 0, 0.1])[1],
                 camera.orientation.apply([0, 0, 0.1])[2],
                 pivot='tail', length=length, normalize=True, color=color_z)
+    
+def plot_axes_vectors(ax: Axes3D, origin: np.array, vectors: np.array, length: float = 0.5, colors=['red', 'green', 'blue']):
+    """ Given an Axes3D, this plots the vectors originating from the origin.
+    
+        Arguments:
+            ax (Axes3D): The 3D axes.
+            origin: The origin of the vectors as an array or list of length 3.
+            vectors: The vectors as an array of shape (n_vectors, 3).
+            colors: Matplotlib colors for the vectors.
+    """
+    for i, vector in enumerate(vectors):
+        ax.quiver3D(origin[0], origin[1], origin[2],
+                  vector[0], vector[1], vector[2],
+                  pivot='tail', length=length, normalize=True, color=colors[i])
 
 def plot_sphere(ax: Axes3D, center: np.array, radius: float, color='orange', alpha=0.7):
     """ Given an Axes3D, this plots a sphere onto it.

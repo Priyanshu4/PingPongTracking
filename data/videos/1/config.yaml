@@ -4,13 +4,13 @@ video:
   setup_frames: 5
   analysis_end_frame: 300
 images:
-  background: "data/images/1/background.jpg"
-  close_ball: "data/images/1/close.jpg"
-  far_ball: "data/images/1/far.jpg"
+  background: "data/images/1/background.png"
+  close_ball: ~
+  far_ball: ~
 camera:
   calibration: "data/calibration/Priyanshu_iPhone13.MOV"
-  pose:
-    position: [0, -2.74, 0.6]
+  pose:  
+    position: [0, -2.74, 1.37] # (x, y) is relative to table center and z is height above ground
     orientation: [-90, 0, 0]
     mirror_x: false
     mirror_y: false
