@@ -71,9 +71,10 @@ class ImageSplitter:
             ax.axis('off')
 
 
-def crop_image(image, lower: np.array, upper: np.array):
+def crop_image_xy(image, lower: np.array, upper: np.array):
     """
     Crops an image to a bounding box defined by the lower and upper bounds.
+    We expect lower and upper to xy ordered.
 
     Args:
         image (np.ndarray): The image to crop.

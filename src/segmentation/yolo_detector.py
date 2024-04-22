@@ -78,4 +78,17 @@ class SplitYoloDetector:
                 highest_confidence = box.conf[0]
             
         return highest_confidence_box, highest_confidence
+    
+    @staticmethod
+    def draw_bounding_box( frame: np.ndarray, box: list[int], conf: float, color=(0, 255, 0)) -> None:
+        """ Draws a bounding box on an image with the confidence score.
+            Args:
+                frame: OpenCV image.
+                box: Bounding box as list of (x, y, x2, y2).
+                conf: Confidence score.
+                color: Bounding box color.
+        """
+        x, y, x2, y2 = box
+        cv2.rectangle(frame, (x, y), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(frame, f'{conf:.2f}', (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
  
