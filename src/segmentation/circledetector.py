@@ -78,14 +78,13 @@ class CircleDetector:
 
         return np.array(filtered_circles)
     
-    def filter_to_region(self, img: np.ndarray, circles: np.ndarray, lower: np.array, upper: np.array) -> np.ndarray:
+    def filter_to_region(self, circles: np.ndarray, lower: np.array, upper: np.array) -> np.ndarray:
         """ Filters circles to a region.
 
             Args:
-                img: OpenCV image.
                 circles: Detected circles as numpy array of (x, y, r) tuples.
-                lower: Lower bound of the region.
-                upper: Upper bound of the region.
+                lower: Lower bound of the region (x, y).
+                upper: Upper bound of the region (x, y).
             Returns:
                 filtered_circles: Circles that are within the region.
         """

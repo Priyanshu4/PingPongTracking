@@ -45,9 +45,9 @@ def plot_table(ax: Axes3D, table: TableConstants, table_color='blue', net_color=
     ax.add_collection3d(net_poly)
 
     if set_limits:
-        ax.set_xlim3d(-table.length * 0.55, table.length * 0.55)
-        ax.set_ylim3d(-table.length * 0.55, table.length * 0.55)
-        ax.set_zlim3d(0, table.length * 0.55 * 2)
+        ax.set_xlim3d(-table.length, table.length)
+        ax.set_ylim3d(-table.length, table.length)
+        ax.set_zlim3d(0, table.height * 5)
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
