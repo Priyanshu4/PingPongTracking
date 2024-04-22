@@ -16,8 +16,9 @@ def velocity_regression(times: np.array, positions: np.array) -> np.array:
     
     # Perform linear regression for each dimension (x, y, z)
     for i in range(3):
-        # Solve the least squares problem
-        result, residuals, rank, s = np.linalg.lstsq(times, positions[:, i], rcond=None)
-        velocity_components[i] = result[0]  # Store the velocity component (slope)
-    
+        
+        # Linear regression on the time and position data
+        slope, intercept = np.polyfit(times, positions[:, i], 1)
+        velocity_components[i] = slope
+
     return velocity_components
