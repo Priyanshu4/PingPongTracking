@@ -46,6 +46,16 @@ class Ellipse:
     def __repr__(self) -> str:
         return f"Ellipse(center_x={self.center_x}, center_y={self.center_y}, short_radius={self.short_radius}, long_radius={self.long_radius}, angle={self.angle})"    
     
+    def draw_on_image(self, img: np.ndarray, color: Tuple[int, int, int], thickness: int) -> np.ndarray:
+        """ Draws the ellipse on an image.
+            Args:
+                img: Image on which to draw the ellipse.
+                color: Color of the ellipse.
+                thickness: Thickness of the ellipse.
+            Returns:
+                Image with the ellipse drawn.
+        """
+        return draw_ellipse_on_image(img, self, color, thickness)
 
 @dataclass
 class Circle(Ellipse):
@@ -83,7 +93,11 @@ class Circle(Ellipse):
     @property
     def radius(self) -> float:
         return self.long_radius
-    
+
+    @property
+    def diameter(self) -> float:
+        return self.long_radius * 2
+     
     def as_tuple(self) -> Tuple[float, float, float]:
         return (self.center_x, self.center_y, self.radius)
     
