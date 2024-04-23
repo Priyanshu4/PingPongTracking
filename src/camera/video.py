@@ -82,10 +82,11 @@ class VideoStream:
         return self.frames_to_read
     
     def __repr__(self) -> str:
+        unknown = "unknown"
         s = f"VideoStream:\n"
         s += f"\tSource: {self.source}\n" 
-        s += f"\tFPS: {self.fps or "unknown"}\n"
-        s += f"\tFrames: {self.frames or "unknown"}\n"
+        s += f"\tFPS: {self.fps or unknown}\n"
+        s += f"\tFrames: {self.frames or unknown}\n"
 
         if self.width is not None and self.height is not None:
             s += f"\tResolution: {self.width}x{self.height}\n"
