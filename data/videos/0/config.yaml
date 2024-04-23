@@ -1,5 +1,6 @@
 video: 
   path: "data/videos/0/0.MOV"
+  fps: 218
   analysis_start_frame: 0
   setup_frames: 5
   analysis_end_frame: 300

@@ -1,10 +1,10 @@
 video: 
   path: "data/videos/1/1.MOV"
   analysis_start_frame: 0
-  setup_frames: 5
+  setup_frames: 20
   analysis_end_frame: 300
 images:
-  background: "data/images/1/background.png"
+  background: "data/videos/1/background.png"
   close_ball: ~
   far_ball: ~
 camera:

@@ -10,7 +10,7 @@ class ImageSplitter:
     def __init__(self, split_width: int, split_height: int, overlap: float = 0):
         """
         Args:
-            split_width: width of the split images
+            split_width: width of the split images 
             split_height: height of the split images
             overlap: portion of overlap between the split images
         """

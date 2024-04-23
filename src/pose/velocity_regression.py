@@ -13,6 +13,7 @@ def velocity_regression(times: np.array, positions: np.array) -> np.array:
     """ 
     # Initialize an array to store the velocity components
     velocity_components = np.zeros(3)
+    intercept_components = np.zeros(3)
     
     # Perform linear regression for each dimension (x, y, z)
     for i in range(3):
@@ -20,5 +21,6 @@ def velocity_regression(times: np.array, positions: np.array) -> np.array:
         # Linear regression on the time and position data
         slope, intercept = np.polyfit(times, positions[:, i], 1)
         velocity_components[i] = slope
+        intercept_components[i] = intercept
 
-    return velocity_components
+    return velocity_components, intercept_components
