@@ -4,6 +4,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python=3.12
   - aom=3.8.2=h63175ca_0
   - asttokens=2.4.1=pyhd8ed1ab_0
   - blas=2.122=mkl
