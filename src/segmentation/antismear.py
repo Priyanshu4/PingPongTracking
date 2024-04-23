@@ -42,7 +42,7 @@ class AntiSmear:
             return 1
         return -1
     
-    def find_original_ball(self, ball_mask, ball_speed_x, ball_speed_y) -> Optional[Tuple[Circle, Ellipse]]:
+    def find_original_ball(self, ball_mask, ball_speed_x, ball_speed_y) -> Tuple[Optional[Circle], Optional[Ellipse]]:
         """ Finds the original ball using the segmented mask of the ball smear.
             Considers an estimate of the sign of ball's speed in the x and y pixel directions.
             Be careful to consider that y-direction is inverted in images.
@@ -53,11 +53,11 @@ class AntiSmear:
                 ball_speed_y: Estimated speed of the ball in the y direction (pixels, only sign matters).
             Returns:
                 Tuple of the ball's Circle and the smear's ellipse.
-                If no ellipse is found, returns None.
+                If no ellipse is found, returns (None, None).
         """
         ellipse = self._find_ellipses(ball_mask)
         if ellipse is None:
-            return None
+            return None, None
 
         xc = ellipse.center_x               
         yc = ellipse.center_y               
