@@ -119,7 +119,7 @@ def plot_sphere(ax: Axes3D, center: np.array, radius: float, color='orange', alp
     z = center[2] + radius * np.cos(v)
     return ax.plot_surface(x, y, z, color=color, alpha=alpha)
 
-def plot_balls(ax: Axes3D, ball: BallConstants, ball_positions: np.ndarraym, color: str):
+def plot_balls(ax: Axes3D, ball: BallConstants, ball_positions: np.ndarray, color: str):
     """ Given an Axes3D and a list of ball positions, this plots the balls onto the Axes3D.
     
         Arguments:
@@ -128,7 +128,7 @@ def plot_balls(ax: Axes3D, ball: BallConstants, ball_positions: np.ndarraym, col
                             Can also be a list of ball vectors.
     """                     
     for ball_position in ball_positions:
-        plot_sphere(ax, ball_position, ball.radius)
+        plot_sphere(ax, ball_position, ball.radius, color=color)
 
 def plot_ball_states(ax: Axes3D, ball: BallConstants, ball_states: list[StateVector]):
     """ Given an Axes3D and a list of ball state vectors, this plots the balls onto the Axes3D.
