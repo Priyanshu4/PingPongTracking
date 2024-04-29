@@ -5,8 +5,6 @@ video:
   analysis_end_frame: 300
 images:
   background: "data/videos/1/background.png"
-  close_ball: ~
-  far_ball: ~
 camera:
   calibration: "data/calibration/Priyanshu_iPhone13.MOV"
   pose:  
