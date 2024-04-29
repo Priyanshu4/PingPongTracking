@@ -4,6 +4,7 @@ from .measurement import (
     PoseMeasurementMode, 
     PositionMeasurementMode, 
     OrientationMeasurementMode,  
+    PixelPositionMeasurementMode,
     MeasurementVector
 )
 from .state import StateVector

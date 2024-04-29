@@ -36,6 +36,7 @@ class BallUKF:
             
         self.state = initial_state                          # Initialize the state
         self.state_covariance = initial_state_covariance    # Initialize the state covariance matrix
+        self.intial_state_covariance = initial_state_covariance
         self.process_noise = process_noise                  # Initialize the process noise matrix
 
         self.set_measurement_mode(measurement_mode)         # Set the measurement mode for the UKF  
@@ -44,8 +45,19 @@ class BallUKF:
         try:
             result = scipy.linalg.cholesky(x)
         except scipy.linalg.LinAlgError as e:
-            x = (x + x.T)/2 # Force the matrix to be symmetric
-            result = scipy.linalg.cholesky(x)
+
+            try:
+                x = (x + x.T)/2 # Force the matrix to be symmetric
+                result = scipy.linalg.cholesky(x)
+            except:
+
+                try:
+                    x  = x + np.eye(x.shape[0]) * 1e-6
+                    result = scipy.linalg.cholesky(x)
+                except:
+                    x = self.intial_state_covariance
+                    print("WARNING: Resetting the state covariance matrix to the initial value due to negative eigenvalues.")
+                    result = scipy.linalg.cholesky(x)
         return result
 
     def set_measurement_mode(self, measurement_mode: MeasurementMode):

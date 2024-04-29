@@ -1,8 +1,8 @@
 video: 
   path: "data/videos/2/2.MOV"
   fps: 170.9
-  analysis_start_frame: 100
-  setup_frames: 5
+  analysis_start_frame: 103
+  setup_frames: 2
   analysis_end_frame: 300
 images:
   background: ~
