@@ -22,9 +22,7 @@ class Config:
     analysis_end_frame: int
     setup_frames: int
 
-    _background_image: int | Path 
-    _close_ball_image: int | Path
-    _far_ball_image: int | Path
+    _background_image: int | Path | None
 
     camera_calibration_video_path: Path
 
@@ -47,36 +45,21 @@ class Config:
 
     def load_images(self):
 
-        if isinstance(self._background_image, int) or isinstance(self._close_ball_image, int) or isinstance(self._far_ball_image, int):
-            frames = list(self.video)
-        
         if isinstance(self._background_image, int):
+            frames = list(self.video)
             self.background_image = frames[self._background_image]
         elif self._background_image is not None:
             self.background_image = cv2.imread(str(self._background_image))
         else:
             self.background_image = None
         
-        if isinstance(self._close_ball_image, int):
-            self.close_ball_image = frames[self._close_ball_image]
-        elif self._close_ball_image is not None:    
-            self.close_ball_image = cv2.imread(str(self._close_ball_image))
-        else:
-            self.close_ball_image = None
-        
-        if isinstance(self._far_ball_image, int):
-            self.far_ball_image = frames[self._far_ball_image]
-        elif self._far_ball_image is not None:
-            self.far_ball_image = cv2.imread(str(self._far_ball_image))
-        else:    
-            self.far_ball_image = None
 
     def parse_path(self, path: Path) -> Path:
         return PROJECT_ROOT / path
 
 
     def __post_init__(self):
-        for attr in ['video_path', 'camera_calibration_video_path', '_background_image', '_close_ball_image', '_far_ball_image']:
+        for attr in ['video_path', 'camera_calibration_video_path', '_background_image']:
             if isinstance(getattr(self, attr), str):
                 setattr(self, attr, self.parse_path(getattr(self, attr)))
 
@@ -114,8 +97,6 @@ class Config:
                 analysis_end_frame=config['video']['analysis_end_frame'],
                 setup_frames=config['video']['setup_frames'],
                 _background_image=config['images']['background'],
-                _close_ball_image=config['images']['close_ball'],
-                _far_ball_image=config['images']['far_ball'],
                 camera_calibration_video_path=config['camera']['calibration'],
                 camera_pose=camera_pose,
                 ball_constants=ball,
