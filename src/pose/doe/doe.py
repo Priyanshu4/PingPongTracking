@@ -214,8 +214,6 @@ class DOE:
 
 
 if __name__ == "__main__":
-
-    fileutils.enforce_entry_point()
     
     parser = argparse.ArgumentParser(description='Test DOE')
     parser.add_argument('--use_gpu', action='store_true', help='Use GPU for processing')

@@ -3,7 +3,7 @@ video:
   fps: 170.9
   analysis_start_frame: 103
   setup_frames: 2
-  analysis_end_frame: 300
+  analysis_end_frame: 193
 images:
   background: ~
 camera:

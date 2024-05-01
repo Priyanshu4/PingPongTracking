@@ -57,13 +57,13 @@ class VideoStream:
         try:
             self.width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        except:
+        except Exception as e:
             self.width = None
             self.height = None
 
         try:
             self.frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        except:
+        except Exception as e:
             self.frames = None
 
     def get_length_if_known(self) -> Optional[int]:

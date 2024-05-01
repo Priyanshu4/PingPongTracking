@@ -35,9 +35,20 @@ class Config:
         return VideoStream(self.video_path)
     
     def get_analysis_video_iter(self, video: Optional[VideoStream] = None):
+        """
+        Get an iterator over the frames to be analyzed from analysis_start_frame to analysis_end_frame.
+        """
         if video is None:
             video = self.video
         return islice(video, self.analysis_start_frame, self.analysis_end_frame, 1)
+    
+    def get_setup_video_iter(self, video: Optional[VideoStream] = None):
+        """
+        Get an iterator over the setup frames from analysis_start_frame to analysis_start_frame + setup_frames.
+        """
+        if video is None:
+            video = self.video
+        return islice(video, self.analysis_start_frame, self.analysis_start_frame + self.setup_frames, 1)
     
     @property
     def calibration_video(self):
