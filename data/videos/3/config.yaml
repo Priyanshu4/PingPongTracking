@@ -9,7 +9,7 @@ images:
 camera:
   calibration: "data/calibration/Priyanshu_iPhone13.MOV"
   pose:  
-    position: [0, -2.74, 1.37] # (x, y) is relative to table center and z is height above ground
+    position: [0, -3, 1.25] # (x, y) is relative to table center and z is height above ground
     orientation: [-90, 0, 0]
     mirror_x: false
     mirror_y: false
