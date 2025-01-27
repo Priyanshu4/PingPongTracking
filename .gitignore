@@ -1,4 +1,6 @@
 *.pyc
 .DS_Store
+/data/yolo_train
+/data/output
 /models/yolo/*
 .conda
